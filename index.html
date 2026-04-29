@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Machine Translation — Bengali</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    :root {
+      --bg:             #06060f;
+      --surface:        rgba(255,255,255,0.03);
+      --surface-hover:  rgba(255,255,255,0.055);
+      --border:         rgba(255,255,255,0.07);
+      --border-strong:  rgba(255,255,255,0.13);
+      --amber:          #f59e0b;
+      --amber-dim:      rgba(245,158,11,0.14);
+      --amber-glow:     rgba(245,158,11,0.06);
+      --indigo:         #818cf8;
+      --indigo-dim:     rgba(129,140,248,0.12);
+      --teal:           #2dd4bf;
+      --text-primary:   #dde4ed;
+      --text-secondary: #8b99af;
+      --text-muted:     #4b5668;
+      --success:        #34d399;
+      --error:          #f87171;
+      --r:  12px;
+      --rs:  8px;
+      --rf: 999px;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-ui:      'DM Sans', system-ui, sans-serif;
+      --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 15% 5%,  rgba(245,158,11,0.055) 0%, transparent 55%),
+        radial-gradient(ellipse 55% 45% at 85% 95%, rgba(129,140,248,0.055) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 50% 50%, rgba(45,212,191,0.025) 0%, transparent 55%);
+      animation: meshDrift 16s ease-in-out infinite alternate;
+      pointer-events: none; z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.013) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.013) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none; z-index: 0;
+    }
+
+    @keyframes meshDrift {
+      0%   { transform: scale(1) rotate(0deg);    opacity: 1;   }
+      100% { transform: scale(1.15) rotate(3deg); opacity: 0.7; }
+    }
+
+    /* ══════════════════════════════════════
+       SPLASH SCREEN
+    ══════════════════════════════════════ */
+    #splash {
+      position: fixed; inset: 0; z-index: 999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .float-chars {
+      position: absolute; inset: 0;
+      pointer-events: none; overflow: hidden;
+    }
+    .float-char {
+      position: absolute;
+      font-family: var(--font-display);
+      color: var(--amber);
+      opacity: 0;
+      animation: floatUp var(--dur, 6s) var(--delay, 0s) ease-in infinite;
+      font-size: var(--size, 1.5rem);
+      left: var(--x, 50%);
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(110vh) rotate(var(--rot,0deg)); opacity: 0; }
+      10%  { opacity: var(--op, 0.12); }
+      90%  { opacity: var(--op, 0.12); }
+      100% { transform: translateY(-15vh) rotate(var(--rot,0deg)); opacity: 0; }
+    }
+
+    .splash-center {
+      position: relative; z-index: 2;
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    .splash-bengali {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+      font-weight: 300;
+      color: var(--amber);
+      opacity: 0;
+      letter-spacing: 0.14em;
+      margin-bottom: 20px;
+      animation: splashFadeUp 0.9s 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .splash-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 9vw, 6rem);
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 0 0.22em;
+      margin-bottom: 28px;
+    }
+
+    .splash-word {
+      display: flex; overflow: hidden;
+    }
+
+    .splash-letter {
+      display: inline-block;
+      background: linear-gradient(135deg, #e8d5a3 0%, #f59e0b 50%, #fcd34d 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0;
+      transform: translateY(56px);
+      animation: letterRise 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes letterRise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .splash-line {
+      width: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--amber), transparent);
+      margin-bottom: 26px;
+      animation: lineGrow 0.8s 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes lineGrow { to { width: min(380px, 65vw); } }
+
+    .splash-sub {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      opacity: 0;
+      animation: splashFadeUp 0.6s 1.7s ease forwards;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 52px;
+    }
+    .splash-arrow { color: var(--amber); opacity: 0.8; display: flex; align-items: center; }
+
+    .splash-progress {
+      width: min(260px, 50vw); height: 2px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 99px; overflow: hidden;
+      opacity: 0;
+      animation: splashFadeUp 0.4s 2s ease forwards;
+    }
+    .splash-progress-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--amber), #fcd34d);
+      border-radius: 99px;
+      animation: progressFill 2.4s 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes progressFill { to { width: 100%; } }
+
+    @keyframes splashFadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0);   }
+    }
+
+    #splash.exit {
+      animation: splashExit 0.65s cubic-bezier(0.4, 0, 1, 1) forwards;
+    }
+    @keyframes splashExit {
+      0%   { opacity: 1; transform: scale(1);    }
+      100% { opacity: 0; transform: scale(1.04); pointer-events: none; }
+    }
+
+    /* ══════════════════════════════════════
+       MAIN PAGE
+    ══════════════════════════════════════ */
+    #mainPage {
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    #mainPage.visible { opacity: 1; }
+
+    .page {
+      position: relative; z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 24px 96px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 52px;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .lang-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 16px;
+      border-radius: var(--rf);
+      border: 1px solid rgba(245,158,11,0.3);
+      background: var(--amber-dim);
+      font-family: var(--font-mono);
+      font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 16px;
+    }
+    .lang-badge-native {
+      font-family: var(--font-display);
+      font-size: 1rem; text-transform: none;
+      letter-spacing: 0.04em; opacity: 0.85;
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 7vw, 3.8rem);
+      font-weight: 300;
+      letter-spacing: -0.01em; line-height: 1.1;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #e8d5a3 0%, #f59e0b 45%, #fcd34d 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-sub {
+      font-size: 0.92rem; color: var(--text-secondary);
+      font-weight: 300; line-height: 1.65;
+      max-width: 460px; margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      transition: border-color var(--transition);
+    }
+    .card:hover { border-color: var(--border-strong); }
+
+    .input-section {
+      margin-bottom: 20px;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .input-wrapper { position: relative; }
+
+    .input-textarea {
+      width: 100%; min-height: 140px;
+      padding: 18px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--r);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 1.15rem; font-weight: 300;
+      line-height: 1.65; letter-spacing: 0.01em;
+      resize: vertical; outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .input-textarea::placeholder { color: var(--text-muted); }
+    .input-textarea:focus {
+      border-color: rgba(245,158,11,0.4);
+      box-shadow: 0 0 0 3px var(--amber-glow);
+    }
+
+    .char-count {
+      position: absolute; bottom: 10px; right: 14px;
+      font-family: var(--font-mono); font-size: 0.65rem;
+      color: var(--text-muted); pointer-events: none;
+    }
+
+    .submit-row {
+      display: flex; gap: 12px;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .btn-submit {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
+      border: none; border-radius: var(--r);
+      color: #0c0a05;
+      font-family: var(--font-ui); font-size: 0.9rem; font-weight: 500;
+      letter-spacing: 0.02em; cursor: pointer;
+      transition: all var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .btn-submit::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background var(--transition);
+    }
+    .btn-submit:hover::before { background: rgba(255,255,255,0.1); }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .btn-clear {
+      padding: 14px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--r);
+      color: var(--text-secondary);
+      font-family: var(--font-ui); font-size: 0.85rem;
+      cursor: pointer; transition: all var(--transition);
+    }
+    .btn-clear:hover { border-color: var(--border-strong); color: var(--text-primary); background: var(--surface-hover); }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(12,10,5,0.3);
+      border-top-color: #0c0a05;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    .response-section {
+      margin-top: 28px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .response-card.loading {
+      animation: pulseCard 1.8s ease-in-out infinite;
+    }
+    @keyframes pulseCard {
+      0%, 100% { border-color: var(--border); }
+      50%       { border-color: rgba(245,158,11,0.35); box-shadow: 0 0 24px rgba(245,158,11,0.06); }
+    }
+
+    .response-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .response-lang-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono); font-size: 0.65rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--amber); background: var(--amber-dim);
+      padding: 4px 10px; border-radius: var(--rf);
+      border: 1px solid rgba(245,158,11,0.2);
+    }
+
+    .btn-copy {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: var(--rs);
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.63rem; letter-spacing: 0.06em;
+      cursor: pointer; transition: all var(--transition);
+    }
+    .btn-copy:hover { border-color: var(--border-strong); color: var(--text-secondary); }
+    .btn-copy.copied { color: var(--success); border-color: rgba(52,211,153,0.3); }
+
+    .response-text {
+      font-family: var(--font-display);
+      font-size: 1.18rem; font-weight: 300; line-height: 1.75;
+      color: var(--text-primary); min-height: 60px;
+      white-space: pre-wrap; word-wrap: break-word;
+    }
+
+    .cursor {
+      display: inline-block; width: 2px; height: 1.1em;
+      background: var(--amber); margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 1.1s step-end infinite;
+    }
+
+    .skeleton-lines { display: flex; flex-direction: column; gap: 10px; }
+    .skeleton-line {
+      height: 16px; border-radius: 4px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s ease infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+
+    .pipeline-toggle {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 20px; width: 100%; padding: 10px 0;
+      background: transparent; border: none;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted); font-family: var(--font-mono);
+      font-size: 0.67rem; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: color var(--transition);
+    }
+    .pipeline-toggle:hover { color: var(--text-secondary); }
+    .pipeline-toggle svg { transition: transform var(--transition); }
+    .pipeline-toggle.open svg { transform: rotate(180deg); }
+
+    .pipeline-body { display: none; margin-top: 16px; flex-direction: column; gap: 12px; }
+    .pipeline-body.open { display: flex; animation: fadeUp 0.3s ease both; }
+
+    .pipeline-step { display: grid; grid-template-columns: 32px 1fr; gap: 14px; align-items: start; }
+
+    .step-number {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .step-number.s1 { background: var(--amber-dim);  color: var(--amber);  border: 1px solid rgba(245,158,11,0.25); }
+    .step-number.s2 { background: var(--indigo-dim); color: var(--indigo); border: 1px solid rgba(129,140,248,0.25); }
+    .step-number.s3 { background: rgba(45,212,191,0.1); color: var(--teal); border: 1px solid rgba(45,212,191,0.25); }
+
+    .step-label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .step-text { font-family: var(--font-ui); font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--rs); padding: 10px 14px; white-space: pre-wrap; word-wrap: break-word; }
+    .step-connector { margin-left: 15px; width: 1px; height: 12px; background: var(--border-strong); }
+
+    .error-card { background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.22); border-radius: var(--r); padding: 16px 20px; margin-top: 20px; display: flex; align-items: flex-start; gap: 12px; animation: fadeUp 0.4s ease both; }
+    .error-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .error-text { font-size: 0.875rem; color: #fca5a5; line-height: 1.55; }
+
+    .footer { margin-top: 64px; text-align: center; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; animation: fadeUp 0.7s 0.4s ease both; }
+    .footer span { color: var(--amber); opacity: 0.7; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 520px) {
+      .page { padding: 36px 16px 64px; }
+      .header-title { font-size: 2.2rem; }
+      .submit-row { flex-direction: column; }
+      .btn-clear { width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SPLASH -->
+  <div id="splash">
+    <div class="float-chars" id="floatChars"></div>
+    <div class="splash-center">
+      <div class="splash-bengali">যন্ত্র অনুবাদ</div>
+      <h1 class="splash-title" id="splashTitle"></h1>
+      <div class="splash-line"></div>
+      <div class="splash-sub">
+        <span>Bengali</span>
+        <span class="splash-arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </span>
+        <span>English</span>
+        <span class="splash-arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+        </span>
+        <span>Bengali</span>
+      </div>
+      <div class="splash-progress">
+        <div class="splash-progress-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN PAGE -->
+  <div id="mainPage">
+    <div class="page">
+
+      <header class="header">
+        <div class="lang-badge">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Bengali
+          <span class="lang-badge-native">বাংলা</span>
+        </div>
+        <h1 class="header-title">Machine Translation</h1>
+        <p class="header-sub">
+          Type a question in Bengali. The system translates it to English,
+          generates a response using Gemma, then translates the answer back to Bengali.
+        </p>
+      </header>
+
+      <section class="input-section">
+        <div class="section-label">Your Question — আপনার প্রশ্ন</div>
+        <div class="input-wrapper">
+          <textarea id="queryInput" class="input-textarea" maxlength="2000" placeholder="এখানে আপনার প্রশ্ন লিখুন…"></textarea>
+          <span class="char-count" id="charCount">0 / 2000</span>
+        </div>
+      </section>
+
+      <div class="submit-row">
+        <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          <span id="btnLabel">Generate Response</span>
+        </button>
+        <button class="btn-clear" onclick="handleClear()">Clear</button>
+      </div>
+
+      <div class="error-card hidden" id="errorCard">
+        <div class="error-icon">⚠</div>
+        <div class="error-text" id="errorText"></div>
+      </div>
+
+      <section class="response-section hidden" id="responseSection">
+        <div class="section-label">Response — উত্তর</div>
+        <div class="card response-card" id="responseCard">
+          <div class="response-header">
+            <div class="response-lang-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              Bengali Response
+            </div>
+            <button class="btn-copy hidden" id="copyBtn" onclick="handleCopy()">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span id="copyLabel">copy</span>
+            </button>
+          </div>
+          <div class="skeleton-lines" id="skeletonLines">
+            <div class="skeleton-line" style="width:92%"></div>
+            <div class="skeleton-line" style="width:85%"></div>
+            <div class="skeleton-line" style="width:78%"></div>
+            <div class="skeleton-line" style="width:60%"></div>
+          </div>
+          <div class="response-text hidden" id="responseText"></div>
+          <button class="pipeline-toggle hidden" id="pipelineToggle" onclick="togglePipeline()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+            View Translation Pipeline
+          </button>
+          <div class="pipeline-body" id="pipelineBody">
+            <div class="pipeline-step">
+              <div class="step-number s1">01</div>
+              <div class="step-content">
+                <div class="step-label">Bengali → English (Input)</div>
+                <div class="step-text" id="pipelineEnIn">—</div>
+              </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="pipeline-step">
+              <div class="step-number s2">02</div>
+              <div class="step-content">
+                <div class="step-label">Gemma's English Response</div>
+                <div class="step-text" id="pipelineEnOut">—</div>
+              </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="pipeline-step">
+              <div class="step-number s3">03</div>
+              <div class="step-content">
+                <div class="step-label">English → Bengali (Output)</div>
+                <div class="step-text" id="pipelineTranslated">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        Machine Translation · <span>Bengali</span> · Gemma 1.1-2B-IT
+      </footer>
+
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://172.24.16.73:8000";
+
+    /* ── Splash ── */
+    const BENGALI_CHARS = ["অ","আ","ক","খ","গ","চ","ট","ত","ন","প","ব","ম","য","র","ল","শ","স","হ","ড","ঢ","ঙ","ঞ","ণ","ঝ","থ","দ","ধ","ফ","ভ","য়"];
+
+    function buildFloatChars() {
+      const container = document.getElementById("floatChars");
+      for (let i = 0; i < 22; i++) {
+        const el = document.createElement("div");
+        el.className = "float-char";
+        el.textContent = BENGALI_CHARS[Math.floor(Math.random() * BENGALI_CHARS.length)];
+        const size  = (Math.random() * 1.8 + 0.9).toFixed(2);
+        const op    = (Math.random() * 0.1 + 0.04).toFixed(3);
+        const dur   = (Math.random() * 8 + 5).toFixed(1);
+        const delay = (Math.random() * 6).toFixed(1);
+        const x     = (Math.random() * 92 + 3).toFixed(1);
+        const rot   = (Math.random() * 40 - 20).toFixed(0);
+        el.style.cssText = `--size:${size}rem;--op:${op};--dur:${dur}s;--delay:${delay}s;--x:${x}%;--rot:${rot}deg`;
+        container.appendChild(el);
+      }
+    }
+
+    function buildSplashTitle() {
+      const title = document.getElementById("splashTitle");
+      const words = ["Machine", "Translation"];
+      let ci = 0;
+      words.forEach(word => {
+        const wordEl = document.createElement("span");
+        wordEl.className = "splash-word";
+        [...word].forEach(char => {
+          const span = document.createElement("span");
+          span.className = "splash-letter";
+          span.textContent = char;
+          span.style.animationDelay = `${0.55 + ci * 0.05}s`;
+          wordEl.appendChild(span);
+          ci++;
+        });
+        title.appendChild(wordEl);
+      });
+    }
+
+    function initSplash() {
+      buildFloatChars();
+      buildSplashTitle();
+      setTimeout(dismissSplash, 4500);
+    }
+
+    function dismissSplash() {
+      const splash = document.getElementById("splash");
+      splash.classList.add("exit");
+      splash.addEventListener("animationend", () => { splash.style.display = "none"; }, { once: true });
+      document.getElementById("mainPage").classList.add("visible");
+    }
+
+    /* ── App state ── */
+    let isLoading = false;
+    let typewriterHandle = null;
+    const $ = id => document.getElementById(id);
+
+    /* ── Char counter ── */
+    $("queryInput").addEventListener("input", () => {
+      const n = $("queryInput").value.length;
+      $("charCount").textContent = `${n} / 2000`;
+      $("charCount").style.color = n > 1800 ? "#f87171" : "";
+    });
+
+    /* ── Submit ── */
+    async function handleSubmit() {
+      if (isLoading) return;
+      const text = $("queryInput").value.trim();
+      if (!text) { $("queryInput").focus(); return; }
+
+      isLoading = true;
+      setLoadingState(true);
+      hideError();
+      showResponseLoading();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, language: "Bengali", max_new_tokens: 512, temperature: 0.7 }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: res.statusText }));
+          throw new Error(err.detail || `HTTP ${res.status}`);
+        }
+        showResponseReady(await res.json());
+      } catch (err) {
+        showError(err.message || "An unexpected error occurred.");
+        $("responseSection").classList.add("hidden");
+      } finally {
+        isLoading = false;
+        setLoadingState(false);
+      }
+    }
+
+    function handleClear() {
+      $("queryInput").value = "";
+      $("charCount").textContent = "0 / 2000";
+      $("responseSection").classList.add("hidden");
+      hideError();
+      if (typewriterHandle) clearTimeout(typewriterHandle);
+    }
+
+    function setLoadingState(loading) {
+      $("submitBtn").disabled = loading;
+      if (loading) {
+        $("btnLabel").textContent = "Generating…";
+        $("submitBtn").insertAdjacentHTML("afterbegin", '<div class="spinner" id="spinner"></div>');
+      } else {
+        $("btnLabel").textContent = "Generate Response";
+        const sp = document.getElementById("spinner");
+        if (sp) sp.remove();
+      }
+    }
+
+    function showResponseLoading() {
+      $("responseSection").classList.remove("hidden");
+      $("responseCard").classList.add("loading");
+      $("skeletonLines").classList.remove("hidden");
+      $("responseText").classList.add("hidden");
+      $("pipelineToggle").classList.add("hidden");
+      $("copyBtn").classList.add("hidden");
+      $("pipelineBody").classList.remove("open");
+      $("pipelineToggle").classList.remove("open");
+    }
+
+    function showResponseReady(data) {
+      $("responseCard").classList.remove("loading");
+      $("skeletonLines").classList.add("hidden");
+      $("responseText").classList.remove("hidden");
+      $("pipelineToggle").classList.remove("hidden");
+      $("copyBtn").classList.remove("hidden");
+      $("pipelineEnIn").textContent       = data.english_query       || "—";
+      $("pipelineEnOut").textContent      = data.english_response    || "—";
+      $("pipelineTranslated").textContent = data.translated_response || "—";
+      typeWriter($("responseText"), data.translated_response || "", 12);
+    }
+
+    async function typeWriter(el, text, speed = 14) {
+      el.textContent = "";
+      const cursor = document.createElement("span");
+      cursor.className = "cursor";
+      el.appendChild(cursor);
+      for (let i = 0; i < text.length; i++) {
+        el.insertBefore(document.createTextNode(text[i]), cursor);
+        await new Promise(r => { typewriterHandle = setTimeout(r, speed + Math.random() * 8); });
+      }
+      await new Promise(r => setTimeout(r, 1200));
+      cursor.remove();
+    }
+
+    function togglePipeline() {
+      const open = $("pipelineBody").classList.toggle("open");
+      $("pipelineToggle").classList.toggle("open", open);
+    }
+
+    function handleCopy() {
+      navigator.clipboard.writeText($("pipelineTranslated").textContent).then(() => {
+        $("copyBtn").classList.add("copied");
+        $("copyLabel").textContent = "copied!";
+        setTimeout(() => { $("copyBtn").classList.remove("copied"); $("copyLabel").textContent = "copy"; }, 2000);
+      });
+    }
+
+    function showError(msg) {
+      let friendly = msg;
+      if (msg.includes("fetch") || msg.includes("Failed to fetch") || msg.includes("NetworkError"))
+        friendly = `Cannot reach backend at <strong>${API_BASE}</strong>. Start it with:<br><code>uvicorn main:app --port 8000</code>`;
+      else if (msg.includes("Model is not loaded"))
+        friendly = "The model is still loading — please wait and try again.";
+      else if (msg.includes("HF_TOKEN"))
+        friendly = "HF_TOKEN is not set on the server. See README.md.";
+      $("errorText").innerHTML = friendly;
+      $("errorCard").classList.remove("hidden");
+    }
+    function hideError() { $("errorCard").classList.add("hidden"); }
+
+    $("queryInput").addEventListener("keydown", e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") handleSubmit();
+    });
+
+    initSplash();
+  </script>
+</body>
+</html>
