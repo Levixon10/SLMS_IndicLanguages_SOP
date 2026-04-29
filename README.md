@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-# slms
-
-Harsh's Project
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
 # 🧠 SOP – Small Language Models (SLMs) for Indic Languages  
 
 ## 📌 Overview
@@ -91,4 +73,4 @@ This repository will be updated regularly with:
 - Learning notes  
 - Implementations  
 - Progress updates  
-- Additional resources 
+- Additional resources  
