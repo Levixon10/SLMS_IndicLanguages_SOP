@@ -1,7 +1,6 @@
 # 🧠 SOP – Small Language Models (SLMs) for Indic Languages  
 
 ## 📌 Overview
-
 This repository documents our work under the SOP focused on **Small Language Models (SLMs) for Indic Languages**.
 
 The objective of this project is to explore, understand, and implement concepts related to building and optimizing efficient language models tailored for Indic languages. The work combines theoretical understanding with practical experimentation.
@@ -9,14 +8,12 @@ The objective of this project is to explore, understand, and implement concepts 
 ---
 
 ## 👥 Team Members
-
 - Ayush Kumar  
 - Harsh Singh  
 
 ---
 
 ## 🎯 Project Focus
-
 - Understanding Small Language Models (SLMs)  
 - Studying core language modeling fundamentals  
 - Exploring challenges in Indic language NLP  
@@ -26,37 +23,32 @@ The objective of this project is to explore, understand, and implement concepts 
 ---
 
 ## 📊 Progress Tracking
+We maintain a structured **Excel Sheet** to track weekly progress and learning outcomes.
 
-We maintain a structured **Excel Sheet** to track our weekly progress and learning outcomes.
-
-The tracker includes:
+**Includes:**
 - Week Number  
 - Topics Covered  
 - Resources Studied  
 - Key Learnings  
 - Tasks Completed  
 
-📄 **Progress Tracker Link:**  
+📄 **Progress Tracker:**  
 https://docs.google.com/spreadsheets/d/1tMId9dc9xpMZKLzYGPemuNoKt76AToOABpkQu0eXqdM/edit?usp=sharing  
-
-This ensures accountability, structured learning, and consistent progress monitoring.
 
 ---
 
 ## 📚 Study Material
-
-All study resources, references, and research material used during the SOP are documented within the progress tracker for organized access and review.
+All study resources, references, and research material are documented within the progress tracker for organized access.
 
 ---
 
 ## 📂 PPTs & Topic Summaries
+We create PPTs to consolidate understanding of each topic.
 
-To consolidate our understanding, we create PPTs summarizing each topic covered during the SOP.
-
-📂 **Drive Folder (PPTs & Summaries):**  
+📂 **Drive Folder:**  
 https://drive.google.com/drive/folders/1lFZH9F173AGWNDpOUYjPgvAqswWjY0dO?usp=sharing  
 
-The folder contains:
+**Contains:**
 - Topic summaries  
 - Concept explanations  
 - Research notes  
@@ -64,12 +56,21 @@ The folder contains:
 
 ---
 
-## 🔄 Updates
+## 📦 Final Deliverables
+The final compiled resources for this SOP include:
+- Project Report  
+- IEEE Paper  
+- Video Demonstration  
+- Final Presentation  
 
+🔗 **Access here:**  
+https://drive.google.com/drive/folders/189BESVFmCVI-gFnxPvC2_L8YDygUrN_h?usp=drive_link  
+
+---
+
+## 🔄 Updates
 This repository will be updated regularly with:
 - Learning notes  
 - Implementations  
 - Progress updates  
-- Additional study resources  
-
----
+- Additional resources  
