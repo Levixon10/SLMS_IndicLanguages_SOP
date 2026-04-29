@@ -91,5 +91,4 @@ This repository will be updated regularly with:
 - Learning notes  
 - Implementations  
 - Progress updates  
-- Additional resources  
->>>>>>> 3b97f6bc34706979d0ac52f37de12b629fcfa11b
+- Additional resources 
